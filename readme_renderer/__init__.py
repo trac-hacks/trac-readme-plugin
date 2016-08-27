@@ -2,11 +2,11 @@ from genshi.filters import Transformer
 from genshi.builder import tag
 from genshi.core import Markup, Stream
 from trac.core import *
-#from trac.config import Option, IntOption
 from trac.mimeview.api import Mimeview, IHTMLPreviewRenderer, content_to_unicode, is_binary
 from trac.web.api import ITemplateStreamFilter
 from trac.web.chrome import ITemplateProvider, add_stylesheet, add_script
 from trac.util.text import to_unicode
+
 
 class ReadmeRendererPlugin(Component):
     implements(ITemplateStreamFilter, ITemplateProvider, IHTMLPreviewRenderer)
@@ -23,26 +23,14 @@ class ReadmeRendererPlugin(Component):
         self.log.debug("Using Markdown Mimeviewer")
         req = context.req
         add_stylesheet(req, 'readme/readme.css')
-        add_script(req, 'readme/marked.js')
         content = content_to_unicode(self.env, content, mimetype)
         # for some insane reason genshi will only preserve whitespace of <pre> elements, trac calls Stream.render() inappropriately.
         return tag.pre(content.encode('utf-8'))
 
     def filter_stream(self, req, method, template, stream, data):
+        add_script(req, 'readme/marked.js')
+        add_script(req, 'readme/readme.js')
         if not (template == 'browser.html' and data.get('dir')):
-            if ((not data.get('dir')) and (data.get('path')) and (data.get('path').endswith('.md'))):       # Rendering single markdown file preview
-                stream = stream | Transformer("//head/script[not(@src)][1]").after(
-                        tag.script(
-                                Markup(
-                                        "jQuery(document).ready(function($) {"
-                                        "  $('#preview').each(function() {"
-                                        "    $(this).html(marked( $(this).children('pre').first().text() ));"
-                                        "  });"
-                                        "});"
-                                ),
-                                type = "text/javascript"
-                        )
-                )
             return stream
 
         add_stylesheet(req, 'common/css/code.css')
@@ -50,7 +38,7 @@ class ReadmeRendererPlugin(Component):
         repos = data.get('repos') or self.env.get_repository()
         rev = req.args.get('rev', None)
 
-        for entry in data['dir']['entries']:                                            # Rendering all READMEs in a directory preview
+        for entry in data['dir']['entries']:  # Rendering all READMEs in a directory preview
             try:
                 if not entry.isdir and entry.name.lower().startswith('readme'):
                     node = repos.get_node(entry.path, rev)
@@ -109,18 +97,6 @@ class ReadmeRendererPlugin(Component):
                         stream = stream | Transformer("//div[@id='content']/div[@id='help']").before(insert)
             except Exception, e:
                 self.log.debug(to_unicode(e))
-        stream = stream | Transformer("//head/script[not(@src)][1]").after(
-                tag.script(
-                        Markup(
-                                "jQuery(document).ready(function($) {"
-                                "  $('.markdown').each(function() {"
-                                "    $(this).html(marked( $(this).children('pre').first().html() ));"
-                                "  });"
-                                "});"
-                        ),
-                        type = "text/javascript"
-                )
-        )
         return stream
 
     def get_templates_dirs(self):
@@ -130,3 +106,4 @@ class ReadmeRendererPlugin(Component):
     def get_htdocs_dirs(self):
         from pkg_resources import resource_filename
         return [('readme', resource_filename(__name__, 'htdocs'))]
+
