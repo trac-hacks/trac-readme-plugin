@@ -1,5 +1,5 @@
 jQuery(document).ready(function($) {
-  $('#preview').each(function() {
+  $('#preview.searchable').each(function() {
     $(this).html(marked( $(this).children('pre').first().text() ));
   });
   $('.markdown').each(function() {
