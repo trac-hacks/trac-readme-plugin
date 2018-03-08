@@ -1,11 +1,12 @@
 from genshi.filters import Transformer
-from genshi.builder import tag
 from genshi.core import Markup, Stream
 from trac.core import *
-from trac.mimeview.api import Mimeview, IHTMLPreviewRenderer, content_to_unicode, is_binary
-from trac.web.api import ITemplateStreamFilter
-from trac.web.chrome import ITemplateProvider, add_stylesheet, add_script
+from trac.mimeview.api import (
+    IHTMLPreviewRenderer, Mimeview, content_to_unicode)
 from trac.util.text import to_unicode
+from trac.util.html import html as tag
+from trac.web.api import ITemplateStreamFilter
+from trac.web.chrome import ITemplateProvider, add_script, add_stylesheet
 
 
 class ReadmeRendererPlugin(Component):
@@ -30,7 +31,7 @@ class ReadmeRendererPlugin(Component):
     def filter_stream(self, req, method, template, stream, data):
         add_script(req, 'readme/marked.js')
         add_script(req, 'readme/readme.js')
-        if not (template == 'browser.html' and data.get('dir')):
+        if template != 'browser.html' or not data.get('dir'):
             return stream
 
         add_stylesheet(req, 'common/css/code.css')
@@ -106,4 +107,3 @@ class ReadmeRendererPlugin(Component):
     def get_htdocs_dirs(self):
         from pkg_resources import resource_filename
         return [('readme', resource_filename(__name__, 'htdocs'))]
-
