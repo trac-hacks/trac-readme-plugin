@@ -100,8 +100,7 @@ class ReadmeRendererPlugin(Component):
         return stream
 
     def get_templates_dirs(self):
-        from pkg_resources import resource_filename
-        return [resource_filename(__name__, 'htdocs')]
+        return []
 
     def get_htdocs_dirs(self):
         from pkg_resources import resource_filename

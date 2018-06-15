@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='ReadmeRendererPlugin',
-    version='0.2',
+    version='0.3',
     description='Plugin to display README* files in Browse Source directory '
                 'listings, and preview .md files as rendered Markdown',
     author='Southen',
