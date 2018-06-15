@@ -1,4 +1,4 @@
-jQuery(document).ready(function($) {
+jQuery(function($) {
   $('#preview.searchable').each(function() {
     $(this).html(marked( $(this).children('pre').first().text() ));
   });

@@ -3,7 +3,8 @@ from setuptools import setup
 setup(
     name='ReadmeRendererPlugin',
     version='0.2',
-    description='Plugin to display README* files in Browse Source directory listings, and preview .md files as rendered Markdown',
+    description='Plugin to display README* files in Browse Source directory '
+                'listings, and preview .md files as rendered Markdown',
     author='Southen',
     url='https://github.com/Southen/trac-readme-plugin',
     license='BSD',
@@ -15,6 +16,7 @@ setup(
     entry_points={
         'trac.plugins': 'readme_renderer = readme_renderer'
     },
+    install_requires=['Trac'],
     package_data={
         'readme_renderer': [
             'htdocs/*.css',
