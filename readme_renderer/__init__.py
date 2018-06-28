@@ -31,11 +31,24 @@ class ReadmeRendererPlugin(Component):
         return tag.pre(content.encode('utf-8'))
 
     def filter_stream(self, req, method, template, stream, data):
-        add_script(req, 'readme/marked.js')
-        add_script(req, 'readme/readme.js')
-        if template != 'browser.html' or not data.get('dir'):
+        if template != 'browser.html':
             return stream
+        dir_listing = bool(data.get('dir'))
+        if dir_listing or data['path'].endswith('.md'):
+            add_script(req, 'readme/marked.js')
+            add_script(req, 'readme/readme.js')
+        if dir_listing:
+            stream = self._render_readme(req, stream, data)
+        return stream
 
+    def get_templates_dirs(self):
+        return []
+
+    def get_htdocs_dirs(self):
+        from pkg_resources import resource_filename
+        return [('readme', resource_filename(__name__, 'htdocs'))]
+
+    def _render_readme(self, req, stream, data):
         add_stylesheet(req, 'common/css/code.css')
 
         repos = data.get('repos') or self.env.get_repository()
@@ -98,10 +111,3 @@ class ReadmeRendererPlugin(Component):
             except Exception, e:
                 self.log.debug(to_unicode(e))
         return stream
-
-    def get_templates_dirs(self):
-        return []
-
-    def get_htdocs_dirs(self):
-        from pkg_resources import resource_filename
-        return [('readme', resource_filename(__name__, 'htdocs'))]
